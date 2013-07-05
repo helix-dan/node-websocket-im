@@ -3,12 +3,13 @@
 	<head>
 	    <title>Socket.io Expo</title>
 	    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	    <link href="public/style/client.css"  type="text/css" rel="stylesheet">
 	</head>
 	<body>
 		<script>
 		    window.WebSocket = window.WebSocket || window.MozWebSocket;
 
-		    var connection = new WebSocket('ws://192.168.2.14:3000');
+		    var connection = new WebSocket('ws://192.168.2.167:3000');
 
 		    connection.onopen = function () {
 		        alert('Your connection is open and ready to use!');
@@ -19,8 +20,16 @@
 		    };
 
 		    connection.onmessage = function (message) {
-		        $("#show").text(message.data);
+		        var message_json = JSON.parse(message.data);
+
+		        if(message_json.type === 'message'){
+		        	add_message_to_content(message_json.data.author, message_json.data.text, new Date(message_json.data.time));
+		        }
 		    };
+
+		    function add_message_to_content(author, message, time){
+		    	$("#content").prepend('<p><span>' + author + '</span>:' + message + '</p>')
+		    }
 
 		    $(document).ready(function(){
 		    	$("#btn").click(function(){
@@ -29,10 +38,15 @@
 		    	})
 		    })
 		</script>
-		<center>
-			<input id="input" type="text" name="send_message"> Please input message</input><br /><br />
+
+		<div id="content">
+		</div>
+
+		<div>
+			<input id="input" type="text" name="send_message"></input>
 			<button id="btn">send message</button><br /><br />
-			<div id="show"></div>
-		</center>
+		</div>
+
+		<div id="show"></div>
 	</body>
 </html>
